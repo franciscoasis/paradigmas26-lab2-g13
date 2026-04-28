@@ -38,7 +38,30 @@ object Dictionary {
    *
    */
   def loadFromFile(filePath: String, entityType: String): List[NamedEntity] = {
-    ???
+    import scala.io.Source
+
+    val source = Source.fromFile(filePath)
+    try {
+      source.getLines()
+        .drop(1)
+        .filter(_.trim.nonEmpty)          // ignora líneas vacías
+        .map { line =>
+          entityType match {
+            case "Person"              => new Person(line)
+            case "Organization"        => new Organization(line)
+            case "Place"               => new Place(line)
+            case "Technology"          => new Technology(line)
+            case "University"          => new University(line)
+            case "ProgrammingLanguage" => new ProgrammingLanguage(line)
+            case other => throw new IllegalArgumentException(
+              s"Unknown entity type: $other"
+            )
+          }
+        }
+        .toList
+    } finally {
+      source.close()
+    }
   }
 
   /**
@@ -50,6 +73,26 @@ object Dictionary {
    *
    */
   def loadAll(): List[NamedEntity] = {
-    ???
+    // Lista de tuplas (ruta_archivo, tipo_entidad) para pasar por parametro a loadFromFile
+    val dictionaries = List(
+      ("data/people.txt", "Person"),
+      ("data/universities.txt", "University"),
+      ("data/languages.txt", "ProgrammingLanguage"),
+      ("data/organizations.txt", "Organization"),
+      ("data/places.txt", "Place")
+    )
+  
+    dictionaries.flatMap { case (filePath, entityType) =>
+      loadFromFile(filePath, entityType)
+    }
+  }
+
+  // === BLOQUE DE PRUEBA (se ejecuta al cargar el objeto) ===
+  def main(args: Array[String]): Unit = {
+    println("=== Probando Dictionary ===")
+    val dict = loadAll()
+    println(s"Total de entidades: ${dict.size}")
+    dict.filter(_.entityType == "Person").foreach(p => println(p.describe))
+    dict.filter(_.entityType == "Place").foreach(p => println(p.describe))
   }
 }
