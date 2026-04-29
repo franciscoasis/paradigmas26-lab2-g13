@@ -40,7 +40,7 @@ object Formatters {
 
     } else {
       val body = entities.map(_.describe).mkString("\n")
-      header + "\n Entidades detectadas:\n" + body
+      header + "\nEntidades detectadas:\n" + body
     }
 
   }
