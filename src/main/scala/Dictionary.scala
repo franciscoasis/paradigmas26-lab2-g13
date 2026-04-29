@@ -86,13 +86,4 @@ object Dictionary {
       loadFromFile(filePath, entityType)
     }
   }
-
-  // === BLOQUE DE PRUEBA (se ejecuta al cargar el objeto) ===
-  def main(args: Array[String]): Unit = {
-    println("=== Probando Dictionary ===")
-    val dict = loadAll()
-    println(s"Total de entidades: ${dict.size}")
-    dict.filter(_.entityType == "Person").foreach(p => println(p.describe))
-    dict.filter(_.entityType == "Place").foreach(p => println(p.describe))
-  }
 }

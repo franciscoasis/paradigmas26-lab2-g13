@@ -35,7 +35,14 @@ object Analyzer {
    *                  )
    */
   def detectEntities(text: String, dictionary: List[NamedEntity]): List[NamedEntity] = {
-    ???
+    // pasar el texto del post a minusculas para evitar problemas al comparar
+    val text_lower = text.toLowerCase
+
+    // filtrar el diccionario preguntandole a cada entidad si está en el texto   
+    val filtered = dictionary.filter(entity => entity.isPresentIn(text_lower)).distinct  // distinct asegura que si una entidad aparece varias veces en el mismo post, solo la devolvamos una vez
+   
+    // retornar la lista filtrada
+    filtered
   }
 
   /**
