@@ -67,6 +67,14 @@ object Analyzer {
    *                 )
    */
   def countByType(entities: List[NamedEntity]): Map[String, Int] = {
-    ???
+
+    val entitiesgroups = entities.groupBy(_.entityType).map{
+      case(tipo, lista) => (tipo, lista.size)
+    }
+
+    //junto mis entindades en grupitos
+    //entitiesgroups devuelve Map[String, List[NamedEntity]], despues del map con case (_,[_]) a cada lista le aplico .size
+    //despues del map se devuelve Map[Str,Int]
+    entitiesgroups
   }
 }
