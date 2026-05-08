@@ -61,7 +61,8 @@ object Formatters {
    *     Organization: 2
    *     University: 2
    */
+   //convierto la lista -> ordeno -> imprimo
   def formatEntityStats(counts: Map[String, Int]): String = {
-    ???
+    val header = s
   }
 }
