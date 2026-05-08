@@ -63,6 +63,12 @@ object Formatters {
    */
    //convierto la lista -> ordeno -> imprimo
   def formatEntityStats(counts: Map[String, Int]): String = {
-    val header = s
+
+    val line = counts.toList.sortBy(-_._2)
+                      .map{case(tipo,cantidad)=> 
+                      s"$tipo: $cantidad"}
+
+    val header = s"=== Estadísticas de entidades ===\n"
+    header + line.mkString("\n")
   }
 }
