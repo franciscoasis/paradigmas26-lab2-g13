@@ -8,8 +8,9 @@ abstract class NamedEntity(val text: String) {
   def isPresentIn(content: String): Boolean = {
   // comparar con el texto en minusculas para que la búsqueda sea case insensitive
   // isPresentIn recibe el contenido en minuscula desde afuera por eficiencia (para no hacerlo 1000 veces aca)
-    content.contains(this.text.toLowerCase)  // "this" es la entidad
-    }
+    val words = this.text.toLowerCase.split(" ")
+    words.exists(word => content.contains(word))
+  }
 }
 
 class Person(text: String) extends NamedEntity(text) {
