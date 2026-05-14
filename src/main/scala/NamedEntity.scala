@@ -1,16 +1,32 @@
+import scala.util.matching.Regex
 
 abstract class NamedEntity(val text: String) {
   def entityType: String
   def describe: String = s"[$entityType] $text"
   
-  // ejercicio 3: este metodo sirve para que cada entidad sepa decir si ella misma aparece en un texto
-  // esto es encapsular: el mismo objeto es el responsable de encontrarse en el post
+  // ejercicio 3: este metodo sirve para que cada entidad sepa decir si ella misma aparece en un texto (encapsulamiento)
   def isPresentIn(content: String): Boolean = {
-  // comparar con el texto en minusculas para que la búsqueda sea case insensitive
-  // isPresentIn recibe el contenido en minuscula desde afuera por eficiencia (para no hacerlo 1000 veces aca)
-    content.contains(this.text.toLowerCase)  // "this" es la entidad
+    // pasar el nombre de la entidad a minúsculas y separar por espacios
+    val entityWords = this.text.toLowerCase.split(" ")
+    
+    // uso 'forall' porque todas las palabras de la entidad deben estar en el texto. Si falta un nombre o apellido, por ej, no se detecta la entidad
+    entityWords.forall { word =>
+      // Regex.quote: Protege caracteres raros como el + de C++. Sin esto, Regex pensaria que el + es un comando especial
+      val escapedWord = Regex.quote(word.toLowerCase)
+      
+      // (?i) -> No importa mayusculas ni minusculas
+      // (?<![\p{L}0-9]) mira ATRAS: que no haya una letra o numero pegado
+      // (?![\p{L}0-9]) mira ADELANTE: que no haya una letra o numero pegado
+      // esto evita que Java se detecte adentro de JavaScript, por ej
+      // \\p{L} cualquier letra (soporta tildes y eñes).
+      val pattern = s"(?i)(?<![\\p{L}0-9])$escapedWord(?![\\p{L}0-9])".r  //.r transforma en objeto tipo regex
+      
+      // verificar si la palabra aparece al menos una vez siguiendo esa regla
+      pattern.findFirstIn(content.toLowerCase).isDefined
     }
+  }
 }
+
 
 class Person(text: String) extends NamedEntity(text) {
   def entityType: String = "Person"

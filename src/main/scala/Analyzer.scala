@@ -35,15 +35,19 @@ object Analyzer {
    *                  )
    */
   def detectEntities(text: String, dictionary: List[NamedEntity]): List[NamedEntity] = {
-    // pasar el texto del post a minusculas para evitar problemas al comparar
-    val text_lower = text.toLowerCase
+    val cleanText = text.toLowerCase
+    
+    // buscar todos los candidatos (puede dar duplicados o entidades anidadas (como C y C++))
+    val candidates = dictionary.filter(entity => entity.isPresentIn(cleanText))
 
-    // filtrar el diccionario preguntandole a cada entidad si está en el texto   
-    val filtered = dictionary.filter(entity => entity.isPresentIn(text_lower)).distinct  // distinct asegura que si una entidad aparece varias veces en el mismo post, solo la devolvamos una vez
-   
-    // retornar la lista filtrada
-    filtered
-  }
+    // me quedo con una entidad (self) si no existe otra (other) que sea mas larga y la contenga
+    // para que si dice por ej C++ o C# no piense que es C
+    candidates.filter { self =>
+      !candidates.exists { other =>
+        other.text.length > self.text.length && other.text.toLowerCase.contains(self.text.toLowerCase)
+        }
+      }.distinct // distinct asegura que si una entidad aparece varias veces en el mismo post, solo la devolvamos una vez
+    }
 
   /**
    * Cuenta cuántas entidades de cada tipo fueron detectadas.
