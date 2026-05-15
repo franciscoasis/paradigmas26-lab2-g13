@@ -6,6 +6,8 @@
  * Responsable de detectar entidades nombradas en texto libre y
  * producir estadísticas sobre ellas.
  */
+import scala.util.matching.Regex
+
 object Analyzer {
 
   /**
@@ -35,19 +37,26 @@ object Analyzer {
    *                  )
    */
   def detectEntities(text: String, dictionary: List[NamedEntity]): List[NamedEntity] = {
-    val cleanText = text.toLowerCase
     
-    // buscar todos los candidatos (puede dar duplicados o entidades anidadas (como C y C++))
-    val candidates = dictionary.filter(entity => entity.isPresentIn(cleanText))
-
-    // me quedo con una entidad (self) si no existe otra (other) que sea mas larga y la contenga
-    // para que si dice por ej C++ o C# no piense que es C
-    candidates.filter { self =>
-      !candidates.exists { other =>
-        other.text.length > self.text.length && other.text.toLowerCase.contains(self.text.toLowerCase)
-        }
-      }.distinct // distinct asegura que si una entidad aparece varias veces en el mismo post, solo la devolvamos una vez
+    // (?i) -> No importa mayúsculas ni minúsculas
+    // (?<![\\p{L}0-9]) mira ATRÁS:
+    //   que no haya una letra o número pegado antes
+    //
+    // (?![\\p{L}0-9]) mira ADELANTE:
+    //   que no haya una letra o número pegado después
+    //
+    // Esto evita que "Java" se detecte dentro de "JavaScript"
+    //
+    // \\p{L} representa cualquier letra Unicode
+    // (incluye tildes y eñes)
+    
+    dictionary.filter { word =>
+      s"(?i)(?<![\\p{L}0-9])${Regex.quote(word.text.toLowerCase)}(?![\\p{L}0-9])"
+      .r
+      .findFirstIn(text.toLowerCase)
+      .nonEmpty
     }
+  }
 
   /**
    * Cuenta cuántas entidades de cada tipo fueron detectadas.
